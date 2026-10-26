@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Une cocotte qui mijote : trois volutes de vapeur au-dessus d'une marmite -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- vapeur -->
+    <path
+        android:pathData="M44,30 C40,34 48,38 44,42"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:strokeColor="#2B2A26" />
+    <path
+        android:pathData="M54,27 C50,31 58,35 54,39"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:strokeColor="#2B2A26" />
+    <path
+        android:pathData="M64,30 C60,34 68,38 64,42"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:strokeColor="#2B2A26" />
+    <!-- couvercle -->
+    <path
+        android:fillColor="#2B2A26"
+        android:pathData="M50,44 h8 a2,2 0 0 1 2,2 v1 h-12 v-1 a2,2 0 0 1 2,-2 z" />
+    <path
+        android:fillColor="#2B2A26"
+        android:pathData="M33,49 h42 a3,3 0 0 1 0,6 h-42 a3,3 0 0 1 0,-6 z" />
+    <!-- cuve -->
+    <path
+        android:fillColor="#2B2A26"
+        android:pathData="M36,57 h36 v12 a10,10 0 0 1 -10,10 h-16 a10,10 0 0 1 -10,-10 z" />
+    <!-- anses -->
+    <path
+        android:fillColor="#2B2A26"
+        android:pathData="M28,59 h8 v5 h-8 a2.5,2.5 0 0 1 0,-5 z" />
+    <path
+        android:fillColor="#2B2A26"
+        android:pathData="M72,59 h8 a2.5,2.5 0 0 1 0,5 h-8 z" />
+</vector>

@@ -1,0 +1,9 @@
+.gradle/
+build/
+.kotlin/
+local.properties
+.idea/
+*.iml
+.DS_Store
+# Modèle vocal téléchargé par la CI (trop lourd pour git)
+composeApp/src/androidMain/assets/model-fr/

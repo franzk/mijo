@@ -1,0 +1,84 @@
+name: Android
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VOSK_MODEL: vosk-model-small-fr-0.22
+  MODEL_DIR: composeApp/src/androidMain/assets/model-fr
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # Modèle de reconnaissance vocale française (~40 Mo), mis en cache entre les builds
+      - name: Cache du modèle vocal
+        id: model-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.MODEL_DIR }}
+          key: ${{ env.VOSK_MODEL }}-v1
+
+      - name: Téléchargement du modèle vocal
+        if: steps.model-cache.outputs.cache-hit != 'true'
+        run: |
+          curl -fsSL -o model.zip "https://alphacephei.com/vosk/models/${VOSK_MODEL}.zip"
+          unzip -q model.zip
+          mkdir -p "$(dirname "$MODEL_DIR")"
+          rm -rf "$MODEL_DIR"
+          mv "$VOSK_MODEL" "$MODEL_DIR"
+          # Identifiant de version lu par StorageService pour savoir s'il faut recopier le modèle
+          echo "$VOSK_MODEL" > "$MODEL_DIR/uuid"
+          rm model.zip
+          du -sh "$MODEL_DIR"
+
+      - name: Vérification du vocabulaire des commandes
+        run: |
+          for w in suivant suivante précédent précédente répète répéter répétez; do
+            if grep -qw "$w" "$MODEL_DIR"/graph/words.txt 2>/dev/null; then echo "ok  $w"; else echo "::warning::mot absent du modèle : $w"; fi
+          done
+
+      - name: Tests
+        run: ./gradlew --no-daemon :composeApp:testDebugUnitTest
+
+      - name: Build de l'APK
+        run: ./gradlew --no-daemon :composeApp:assembleDebug
+
+      - name: Renommage
+        run: cp composeApp/build/outputs/apk/debug/composeApp-debug.apk mijo.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mijo-apk
+          path: mijo.apk
+
+      # Publication sur une release « dev » au lien fixe :
+      # https://github.com/<compte>/<dépôt>/releases/download/dev/mijo.apk
+      - name: Publication de la release dev
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete dev --yes --cleanup-tag || true
+          gh release create dev mijo.apk \
+            --target "$GITHUB_SHA" \
+            --prerelease \
+            --title "Mijo dev · build ${GITHUB_RUN_NUMBER}" \
+            --notes "Build de test ${GITHUB_RUN_NUMBER} (commit ${GITHUB_SHA::7}). Ouvre ce lien depuis le téléphone et installe mijo.apk."
